@@ -8,7 +8,7 @@ import sockjs from 'sockjs'
 import cookieParser from 'cookie-parser'
 import Html from '../client/html'
 
-const { readFile, writeFile, unlink /* , stat */ } = require('fs').promises
+const { readFile, writeFile, unlink, stat } = require('fs').promises
 
 const myLogin = function header(req, res, next) {
   res.set('x-skillcrucial-user', '19a94565-0803-4231-aaad-0459443b63a5')
@@ -46,6 +46,16 @@ const fileRead = async () => {
   return read
 }
 
+const fileCheck = async () => {
+  const check = await stat(`${__dirname}/users.json`)
+    .then(async () => {
+      const delFile = await unlink(`${__dirname}/users.json`)
+      return delFile
+    })
+    .catch(() => 'No such file')
+  return check
+}
+
 server.get('/api/v1/users', async (req, res) => {
   const users = await fileRead()
   res.json(users)
@@ -78,8 +88,8 @@ server.delete('/api/v1/users/:userId', async (req, res) => {
 }) /* read + write */
 
 server.delete('/api/v1/users', async (req, res) => {
-  await unlink(`${__dirname}/users.json`)
-  res.json({ status: 'success' })
+  await fileCheck()
+  res.json({ status: 'ok' })
 }) /* write */
 
 server.get('/api/v1/users/take/:number', async (req, res) => {
@@ -101,7 +111,7 @@ server.use('/api/', (req, res) => {
 const echo = sockjs.createServer()
 echo.on('connection', (conn) => {
   connections.push(conn)
-  conn.on('data', async () => { })
+  conn.on('data', async () => {})
   conn.on('close', () => {
     connections = connections.filter((c) => c.readyState !== 3)
   })
