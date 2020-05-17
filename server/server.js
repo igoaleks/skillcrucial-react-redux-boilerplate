@@ -66,7 +66,7 @@ server.post('/api/v1/users', async (req, res) => {
   const newUser = req.body
   const newUserid = users[users.length - 1].id + 1
   const addUser = [...users, newUser]
-  await saveFile(addUser)
+  saveFile(addUser)
   res.json({ status: 'success', id: newUserid })
 }) /* read + write */
 
@@ -75,7 +75,7 @@ server.patch('/api/v1/users/:userId', async (req, res) => {
   const { userId } = req.params
   const newUser = req.body
   const cangeUser = users.map((item) => (item.id === +userId ? Object.assign(item, newUser) : item))
-  await saveFile(cangeUser)
+  saveFile(cangeUser)
   res.json({ status: 'success', id: userId })
 }) /* read + write */
 
@@ -83,7 +83,7 @@ server.delete('/api/v1/users/:userId', async (req, res) => {
   const users = await fileRead()
   const { userId } = req.params
   const delUser = users.filter((item) => item.id !== +userId)
-  await saveFile(delUser)
+  saveFile(delUser)
   res.json({ status: 'success', id: +userId })
 }) /* read + write */
 
